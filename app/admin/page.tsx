@@ -53,6 +53,8 @@ import { Spinner } from "@/components/ui/spinner"
 import { useAuth } from "@/components/auth-provider"
 import { Product } from "@/components/cart-provider"
 import { initialProducts, Settings as SettingsType, defaultSettings } from "@/lib/store"
+import { ImageUpload } from "@/components/image-upload"
+import { getImageUrl } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function AdminPage() {
@@ -242,7 +244,7 @@ export default function AdminPage() {
                       <div className="flex items-start gap-3">
                         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-muted">
                           <Image
-                            src={product.image}
+                            src={getImageUrl(product.image)}
                             alt={product.name}
                             fill
                             className="object-cover"
@@ -319,7 +321,7 @@ export default function AdminPage() {
                           <TableCell>
                             <div className="relative h-10 w-10 overflow-hidden rounded bg-muted">
                               <Image
-                                src={product.image}
+                                src={getImageUrl(product.image)}
                                 alt={product.name}
                                 fill
                                 className="object-cover"
@@ -482,14 +484,11 @@ export default function AdminPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>URL de imagen</Label>
-                <Input
+                <Label>Imagen</Label>
+                <ImageUpload
                   value={editingProduct.image}
-                  onChange={(e) =>
-                    setEditingProduct({
-                      ...editingProduct,
-                      image: e.target.value,
-                    })
+                  onChange={(url) =>
+                    setEditingProduct({ ...editingProduct, image: url })
                   }
                 />
               </div>
@@ -546,13 +545,10 @@ export default function AdminPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>URL de imagen</Label>
-              <Input
-                value={newProduct.image}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, image: e.target.value })
-                }
-                placeholder="/products/mi-producto.jpg"
+              <Label>Imagen</Label>
+              <ImageUpload
+                value={newProduct.image ?? ""}
+                onChange={(url) => setNewProduct({ ...newProduct, image: url })}
               />
             </div>
           </div>

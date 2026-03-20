@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, ShoppingCart, User, Menu, X, Phone } from "lucide-react"
+import { Search, ShoppingCart, User, X, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useCart } from "@/components/cart-provider"
@@ -16,7 +16,7 @@ interface NavbarProps {
 export function Navbar({ onSearch }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const { totalItems } = useCart()
 
   const handleSearch = (e: React.FormEvent) => {
@@ -28,9 +28,9 @@ export function Navbar({ onSearch }: NavbarProps) {
     <>
       <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2">
-          <div className="grid grid-cols-3 items-center">
-            {/* Logo + Contact */}
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between">
+            {/* Logo + Brand name */}
+            <div className="flex items-center gap-3">
               <Link href="/" className="flex-shrink-0">
                 <Image
                   src="/logo.png"
@@ -40,20 +40,13 @@ export function Navbar({ onSearch }: NavbarProps) {
                   className="rounded-full"
                 />
               </Link>
-              <Link
-                href="#contacto"
-                className="hidden md:flex items-center gap-1.5 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-              >
-                <Phone className="h-4 w-4" />
-                Contacto
-              </Link>
+              <span className="hidden md:block text-base font-semibold text-foreground">
+                Pequeños
+              </span>
             </div>
 
-            {/* Search Bar - Centered */}
-            <form
-              onSubmit={handleSearch}
-              className="hidden md:flex justify-center"
-            >
+            {/* Desktop search — centered */}
+            <form onSubmit={handleSearch} className="hidden md:flex flex-1 justify-center px-8">
               <div className="relative w-full max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -70,7 +63,24 @@ export function Navbar({ onSearch }: NavbarProps) {
             </form>
 
             {/* Right side actions */}
-            <div className="flex items-center gap-2 justify-end">
+            <div className="flex items-center gap-2">
+              {/* Search icon — mobile only */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              >
+                {isMobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              </Button>
+
+              {/* Contact — desktop only */}
+              <Link href="#contacto" className="hidden md:block">
+                <Button variant="ghost" size="icon">
+                  <Phone className="h-5 w-5" />
+                </Button>
+              </Link>
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -90,33 +100,20 @@ export function Navbar({ onSearch }: NavbarProps) {
                   <User className="h-5 w-5" />
                 </Button>
               </Link>
-
-              {/* Mobile menu button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
             </div>
           </div>
 
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-border">
-              <form onSubmit={handleSearch} className="mb-4">
+          {/* Mobile search bar */}
+          {isMobileSearchOpen && (
+            <div className="md:hidden py-3 border-t border-border">
+              <form onSubmit={handleSearch}>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     type="search"
                     placeholder="Buscar productos..."
                     value={searchQuery}
+                    autoFocus
                     onChange={(e) => {
                       setSearchQuery(e.target.value)
                       onSearch?.(e.target.value)
@@ -125,16 +122,6 @@ export function Navbar({ onSearch }: NavbarProps) {
                   />
                 </div>
               </form>
-              <div className="flex flex-col gap-2">
-                <Link
-                  href="#contacto"
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent rounded-md"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Phone className="h-4 w-4" />
-                  Contacto
-                </Link>
-              </div>
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@ import './globals.css'
 import { CartProvider } from '@/components/cart-provider'
 import { Toaster } from '@/components/ui/sonner'
 
+
 const nunito = Nunito({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {

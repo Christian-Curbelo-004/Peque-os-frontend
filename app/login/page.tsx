@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Lock, User } from "lucide-react"
+import { ArrowLeft, Lock, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ import { Spinner } from "@/components/ui/spinner"
 export default function LoginPage() {
   const router = useRouter()
   const { isAuthenticated, isLoading, login } = useAuth()
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -29,18 +29,15 @@ export default function LoginPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Small delay for UX
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
-    const success = login(username, password)
-    if (success) {
+    try {
+      await login(email, password)
       toast.success("Bienvenido al panel de administración")
       router.replace("/admin")
-    } else {
-      toast.error("Usuario o contraseña incorrectos")
+    } catch {
+      toast.error("Email o contraseña incorrectos")
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setIsSubmitting(false)
   }
 
   if (isLoading) {
@@ -79,15 +76,15 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Usuario</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Ingresa tu usuario"
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
                     className="pl-10"
                     required
                   />
@@ -119,9 +116,6 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-            <p className="text-xs text-muted-foreground text-center mt-4">
-              Prueba: admin / admin123
-            </p>
           </CardContent>
         </Card>
       </main>

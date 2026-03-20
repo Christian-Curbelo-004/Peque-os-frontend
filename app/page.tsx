@@ -125,12 +125,16 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-card mt-16 sm:mt-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="text-center">
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              © 2024 pequeños uy. Todos los derechos reservados.
-            </p>
-          </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            © {new Date().getFullYear()} pequeños uy. Todos los derechos reservados.
+          </p>
+          <span className="text-xs sm:text-sm text-muted-foreground">
+            Web desarrollada por
+            <a href="#" className="mx-1 underline text-primary" target="_blank" rel="noopener noreferrer">Rodrigo Doldán</a>
+            y
+            <a href="#" className="mx-1 underline text-primary" target="_blank" rel="noopener noreferrer">Christian Curbelo</a>
+          </span>
         </div>
       </footer>
     </div>

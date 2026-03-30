@@ -75,11 +75,16 @@ export function Navbar({ onSearch }: NavbarProps) {
               </Button>
 
               {/* Contact — desktop only */}
-              <Link href="#contacto" className="hidden md:block">
-                <Button variant="ghost" size="icon">
-                  <Phone className="h-5 w-5" />
-                </Button>
-              </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden md:flex"
+                onClick={() =>
+                  document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                <Phone className="h-5 w-5" />
+              </Button>
 
               <Button
                 variant="ghost"

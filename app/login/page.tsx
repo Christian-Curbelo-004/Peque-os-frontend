@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Lock, Mail } from "lucide-react"
+import { ArrowLeft, Lock, Mail, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,12 +18,20 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [sessionExpired, setSessionExpired] = useState(false)
 
-  // If already authenticated, redirect to admin
-  if (!isLoading && isAuthenticated) {
-    router.replace("/admin")
-    return null
-  }
+  useEffect(() => {
+    if (localStorage.getItem("auth_session_expired") === "1") {
+      setSessionExpired(true)
+      localStorage.removeItem("auth_session_expired")
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace("/admin")
+    }
+  }, [isLoading, isAuthenticated, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,7 +71,14 @@ export default function LoginPage() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-sm">
+        <div className="w-full max-w-sm space-y-4">
+        {sessionExpired && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+            <p>Tu sesión expiró. Por favor ingresá de nuevo.</p>
+          </div>
+        )}
+        <Card className="w-full">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-accent rounded-full flex items-center justify-center mb-4">
               <Lock className="h-6 w-6 text-foreground" />
@@ -118,6 +133,7 @@ export default function LoginPage() {
             </form>
           </CardContent>
         </Card>
+        </div>
       </main>
     </div>
   )

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useCart } from "@/components/cart-provider"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import api from "@/lib/api"
 
 type Step = "payment" | "delivery" | "contact" | "success"
 
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
+    notes: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -73,38 +75,30 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true)
 
-    // Format order message for WhatsApp
-    const orderItems = items
-      .map((item) => `- ${item.name} x${item.quantity} ($${item.price * item.quantity})`)
-      .join("\n")
-
-    const message = `
-🛒 *Nuevo Pedido - pequeños uy*
-
-*Productos:*
-${orderItems}
-
-*Total:* $${totalPrice}
-
-*Método de pago:* ${paymentMethod === "efectivo" ? "Efectivo" : "Transferencia"}
-*Entrega:* ${deliveryMethod === "retiro" ? "Retiro en local" : "Envío a domicilio"}
-
-*Datos del cliente:*
-Nombre: ${formData.name}
-Email: ${formData.email}
-Teléfono: ${formData.phone}
-${deliveryMethod === "envio" ? `Dirección: ${formData.address}` : ""}
-    `.trim()
-
-    // Send to WhatsApp (you can configure the phone number in settings)
-    const whatsappUrl = `https://wa.me/59899123456?text=${encodeURIComponent(message)}`
-    
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, "_blank")
-
-    setIsSubmitting(false)
-    clearCart()
-    setStep("success")
+    try {
+      await api.post("/pedidos.php", {
+        customer_name: formData.name,
+        customer_phone: formData.phone,
+        customer_email: formData.email,
+        delivery_type: deliveryMethod === "retiro" ? "pickup" : "delivery",
+        address: deliveryMethod === "envio" ? formData.address : undefined,
+        payment_method: paymentMethod === "efectivo" ? "cash" : "transfer",
+        notes: formData.notes || undefined,
+        items: items.map((item) => ({
+          product_id: Number(item.id),
+          quantity: item.quantity,
+        })),
+      })
+      clearCart()
+      setStep("success")
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "Error al enviar el pedido. Intentá de nuevo."
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const steps = [
@@ -122,11 +116,11 @@ ${deliveryMethod === "envio" ? `Dirección: ${formData.address}` : ""}
               <Check className="h-8 w-8 text-green-600" />
             </div>
             <h2 className="text-2xl font-semibold text-foreground mb-2">
-              Pedido enviado
+              ¡Pedido creado con éxito!
             </h2>
             <p className="text-muted-foreground mb-6">
-              Tu pedido fue enviado por WhatsApp. Nos pondremos en contacto
-              contigo pronto para coordinar los detalles.
+              Te notificaremos por mail cuando tu pedido esté listo. Si necesitamos
+              coordinar algún detalle de entrega o pago, nos comunicaremos con vos.
             </p>
             <Link href="/">
               <Button className="w-full">Volver a la tienda</Button>
@@ -371,6 +365,17 @@ ${deliveryMethod === "envio" ? `Dirección: ${formData.address}` : ""}
                         />
                       </div>
                     )}
+                    <div className="space-y-2">
+                      <Label htmlFor="notes">Notas adicionales</Label>
+                      <Textarea
+                        id="notes"
+                        value={formData.notes}
+                        onChange={(e) =>
+                          setFormData({ ...formData, notes: e.target.value })
+                        }
+                        placeholder="Alguna aclaración sobre tu pedido (opcional)"
+                      />
+                    </div>
                     <div className="flex gap-3 pt-4">
                       <Button
                         type="button"

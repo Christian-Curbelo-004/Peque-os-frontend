@@ -18,16 +18,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token")
+    const expiry = localStorage.getItem("auth_expiry")
+
     if (token) {
-      setIsAuthenticated(true)
+      if (expiry && Date.now() > Number(expiry)) {
+        // Token expirado — limpiar sesión y dejar flag para login page
+        localStorage.removeItem("auth_token")
+        localStorage.removeItem("auth_expiry")
+        localStorage.removeItem("user_profile")
+        localStorage.setItem("auth_session_expired", "1")
+        setIsAuthenticated(false)
+      } else {
+        setIsAuthenticated(true)
+      }
     }
+
     setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const response = await api.post("login.php", { email, password })
     const token: string = response.data.token
+    const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 días
     localStorage.setItem("auth_token", token)
+    localStorage.setItem("auth_expiry", String(expiry))
     setIsAuthenticated(true)
     return true
   }
@@ -35,6 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setIsAuthenticated(false)
     localStorage.removeItem("auth_token")
+    localStorage.removeItem("auth_expiry")
+    localStorage.removeItem("user_profile")
   }
 
   return (

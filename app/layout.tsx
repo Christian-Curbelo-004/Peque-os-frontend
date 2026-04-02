@@ -13,7 +13,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pequenosuy.com'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Pequeños UY — Sorpresas y regalos para fiestas infantiles',
+    default: 'Pequeños UY — Articulos y regalos para fiestas infantiles',
     template: '%s | Pequeños UY',
   },
   description: 'Sorpresitas, bolsitas y regalos temáticos para cumpleaños infantiles en Uruguay. Personajes favoritos, dulces y mucha diversión.',
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     locale: 'es_UY',
     url: siteUrl,
     siteName: 'Pequeños UY',
-    title: 'Pequeños UY — Sorpresas y regalos para fiestas infantiles',
-    description: 'Sorpresitas, bolsitas y regalos temáticos para cumpleaños infantiles en Uruguay.',
+    title: 'Pequeños UY — Articulos y regalos para fiestas infantiles',
+    description: 'Tazas, remeras y regalos temáticos para cumpleaños infantiles en Uruguay.',
     images: [
       {
         url: '/logo.png',

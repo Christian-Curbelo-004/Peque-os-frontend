@@ -172,7 +172,7 @@ export default function Home() {
                 <div>
                   <p className="font-medium text-foreground text-sm sm:text-base">Email</p>
                   <p className="text-xs sm:text-sm text-muted-foreground break-all">
-                    hola@pequenosuy.com
+                    soporte@pequeños.net
                   </p>
                 </div>
               </div>
@@ -183,7 +183,7 @@ export default function Home() {
                 <div>
                   <p className="font-medium text-foreground text-sm sm:text-base">Instagram</p>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    @pequenosuy
+                    @pequenos_uy
                   </p>
                 </div>
               </div>

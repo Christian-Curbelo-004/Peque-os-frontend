@@ -161,7 +161,7 @@ export default function Home() {
                 <div>
                   <p className="font-medium text-foreground text-sm sm:text-base">Teléfono</p>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    +598 99 123 456
+                    +598 98 268 864
                   </p>
                 </div>
               </div>
@@ -172,7 +172,7 @@ export default function Home() {
                 <div>
                   <p className="font-medium text-foreground text-sm sm:text-base">Email</p>
                   <p className="text-xs sm:text-sm text-muted-foreground break-all">
-                    soporte@pequeños.net
+                    soporte@pequeñosuy.com
                   </p>
                 </div>
               </div>
@@ -252,9 +252,9 @@ export default function Home() {
           </p>
           <span className="text-xs sm:text-sm text-muted-foreground">
             Web desarrollada por
-            <a href="#" className="mx-1 underline text-primary" target="_blank" rel="noopener noreferrer">Rodrigo Doldán</a>
+            <a href="https://www.linkedin.com/in/rodrigo-doldan-3015a134a/" className="mx-1 underline text-primary" target="_blank" rel="noopener noreferrer">Rodrigo Doldán</a>
             y
-            <a href="#" className="mx-1 underline text-primary" target="_blank" rel="noopener noreferrer">Christian Curbelo</a>
+            <a href="https://www.linkedin.com/in/christian-curbelo-02b8b739b/" className="mx-1 underline text-primary" target="_blank" rel="noopener noreferrer">Christian Curbelo</a>
           </span>
         </div>
       </footer>

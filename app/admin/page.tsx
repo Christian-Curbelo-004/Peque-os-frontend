@@ -141,7 +141,7 @@ export default function AdminPage() {
     name: "",
     description: "",
     price: 0,
-    image: "/products/placeholder.jpg",
+    image: "",
     enabled: true,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -530,12 +530,14 @@ export default function AdminPage() {
                     >
                       <div className="flex items-start gap-3">
                         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-muted">
-                          <Image
-                            src={getImageUrl(product.image)}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
+                          {product.image ? (
+                            <Image
+                              src={getImageUrl(product.image)}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : null}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground truncate">
@@ -607,12 +609,14 @@ export default function AdminPage() {
                         <TableRow key={product.id}>
                           <TableCell>
                             <div className="relative h-10 w-10 overflow-hidden rounded bg-muted">
-                              <Image
-                                src={getImageUrl(product.image)}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                              />
+                              {product.image ? (
+                                <Image
+                                  src={getImageUrl(product.image)}
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : null}
                             </div>
                           </TableCell>
                           <TableCell className="font-medium">
@@ -1131,9 +1135,9 @@ export default function AdminPage() {
               <Label>Precio</Label>
               <Input
                 type="number"
-                value={newProduct.price}
+                value={newProduct.price === 0 ? "" : newProduct.price}
                 onChange={(e) =>
-                  setNewProduct({ ...newProduct, price: Number(e.target.value) })
+                  setNewProduct({ ...newProduct, price: e.target.value === "" ? 0 : Number(e.target.value) })
                 }
                 placeholder="0"
               />
@@ -1150,7 +1154,7 @@ export default function AdminPage() {
             <Button variant="outline" onClick={() => setIsAddingProduct(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleAddProduct} disabled={isSubmitting}>
+            <Button onClick={handleAddProduct} disabled={isSubmitting || !newProduct.price}>
               {isSubmitting ? <Spinner className="h-4 w-4 mr-2" /> : null}
               Agregar producto
             </Button>

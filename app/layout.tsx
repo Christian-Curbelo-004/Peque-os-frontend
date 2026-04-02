@@ -13,11 +13,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pequenosuy.com'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Pequeños UY — Articulos y regalos para fiestas infantiles',
+    default: 'Pequeños UY — Sublimados y articulos para infantiles',
     template: '%s | Pequeños UY',
   },
-  description: 'Sorpresitas, bolsitas y regalos temáticos para cumpleaños infantiles en Uruguay. Personajes favoritos, dulces y mucha diversión.',
-  keywords: ['sorpresitas infantiles', 'bolsitas cumpleaños', 'regalos fiestas niños', 'cumpleaños infantil uruguay', 'pequeños uy'],
+  description: 'Sublimados y artículos para infantiles en Uruguay. Personajes favoritos, tematicos y mucha diversión.',
+  keywords: ['tazas', 'remeras', 'regalos fiestas niños', 'cumpleaños infantil uruguay', 'pequeños uy', 'sublimados infantiles', 'pequeños'],
   authors: [{ name: 'Pequeños UY' }],
   creator: 'Pequeños UY',
   openGraph: {
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     locale: 'es_UY',
     url: siteUrl,
     siteName: 'Pequeños UY',
-    title: 'Pequeños UY — Articulos y regalos para fiestas infantiles',
-    description: 'Tazas, remeras y regalos temáticos para cumpleaños infantiles en Uruguay.',
+    title: 'Pequeños UY — Sublimados y articulos para infantiles',
+    description: 'Sublimados y articulos temáticos para infantiles en Uruguay.',
     images: [
       {
         url: '/logo.png',
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pequeños UY — Sorpresas y regalos para fiestas infantiles',
-    description: 'Sorpresitas, bolsitas y regalos temáticos para cumpleaños infantiles en Uruguay.',
+    title: 'Pequeños UY — Sublimados y articulos para infantiles',
+    description: 'Sublimados y articulos temáticos para infantiles en Uruguay.',
     images: ['/logo.png'],
   },
   robots: {

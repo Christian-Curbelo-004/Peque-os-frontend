@@ -72,5 +72,8 @@
   },
   "overrides": {
     "lightningcss": "1.19.0"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.2.0"
   }
 }

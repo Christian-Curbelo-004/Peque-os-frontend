@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useEffect, useCallback, type FormEvent } from "react"
 import { Navbar } from "@/components/navbar"
 import { ProductCard } from "@/components/product-card"
 import { Product } from "@/components/cart-provider"
 import { Mail, Phone, MapPin, Instagram } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { Spinner } from "@/components/ui/spinner"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { toast } from "sonner"
 import api from "@/lib/api"
 
 function mapProduct(p: Record<string, unknown>): Product {
@@ -23,6 +25,18 @@ function mapProduct(p: Record<string, unknown>): Product {
 
 const PRODUCTS_LIMIT = 50
 
+{/* ONE COLOR PER LETTER NEW!!! */ }
+const HERO_TITLE_LETTERS = [
+  { char: 'P', color: '#F6A6A6' },
+  { char: 'E', color: '#9CCFB8' },
+  { char: 'Q', color: '#F6D36B' },
+  { char: 'U', color: '#D2A7E8' },
+  { char: 'E', color: '#F7B77E' },
+  { char: 'Ñ', color: '#B8C7E8' },
+  { char: 'O', color: '#F4A3B4' },
+  { char: 'S', color: '#A6D8D1' },
+] as const
+
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [products, setProducts] = useState<Product[]>([])
@@ -30,6 +44,8 @@ export default function Home() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [productsOffset, setProductsOffset] = useState(0)
   const [hasMore, setHasMore] = useState(false)
+  const [contactMessage, setContactMessage] = useState("")
+  const [isSendingContact, setIsSendingContact] = useState(false)
 
   useEffect(() => {
     api.get(`/products.php?limit=${PRODUCTS_LIMIT}&offset=0`).then(({ data }) => {
@@ -58,6 +74,30 @@ export default function Home() {
       setIsLoadingMore(false)
     }
   }, [productsOffset])
+
+  const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const message = contactMessage.trim()
+    if (!message) {
+      toast.error("Escribí un mensaje para enviar por WhatsApp")
+      return
+    }
+
+    setIsSendingContact(true)
+    try {
+      await api.post("/contact.php", { message })
+      setContactMessage("")
+      toast.success("Mensaje enviado correctamente")
+    } catch (error: unknown) {
+      const messageError =
+        (error as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "No se pudo enviar el mensaje"
+      toast.error(messageError)
+    } finally {
+      setIsSendingContact(false)
+    }
+  }
 
   const filteredProducts = useMemo(() => {
     return products.filter(
@@ -99,17 +139,30 @@ export default function Home() {
       <Navbar onSearch={setSearchQuery} />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Hero Section */}
+        
+        {/* Hero Section */} {/* ACTUALIZADO  */ }
         <section className="text-center mb-12 sm:mb-16">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-2 text-balance">
-            Pequeños
+          <h2
+            className="text-4xl sm:text-5xl md:text-6xl font-bold mb-2 text-balance tracking-wide"  
+            aria-label="PEQUEÑOS"
+          >
+            {HERO_TITLE_LETTERS.map(({ char, color }, index) => (
+              <span
+                key={`${char}-${index}`}
+                aria-hidden="true"
+                className="inline-block drop-shadow-[0_1px_0_rgba(255,255,255,0.35)]"
+                style={{ color }}
+              >
+                {char}
+              </span>
+            ))}
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground mb-4">
             Presentes en sus momentos
           </p>
           <p className="text-sm sm:text-base text-muted-foreground/80 max-w-xl mx-auto text-pretty px-4">
-            Productos temáticos para cumpleaños infantiles. 
-            Personajes favoritos, dulces y mucha diversión.
+            Artículos artesanales para eventos. 100% personalizados y únicos. {/* NUEVO */ }
+            Souvenirs, kits y más con amor
           </p>
         </section>
 
@@ -199,6 +252,25 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            <form onSubmit={handleContactSubmit} className="mt-8 max-w-2xl mx-auto space-y-4">
+              <div className="space-y-2 text-left">
+                <label htmlFor="contact-message" className="text-sm font-medium text-foreground">
+                  Escribinos por WhatsApp
+                </label>
+                <Textarea
+                  id="contact-message"
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
+                  placeholder="Contanos qué necesitás y te respondemos por WhatsApp."
+                  rows={4}
+                />
+              </div>
+              <div className="flex justify-center">
+                <Button type="submit" disabled={isSendingContact}>
+                  {isSendingContact ? "Enviando..." : "Enviar mensaje"}
+                </Button>
+              </div>
+            </form>
           </div>
         </section>
         {/* FAQ Section */}

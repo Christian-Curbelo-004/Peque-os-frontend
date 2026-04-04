@@ -135,6 +135,7 @@ export default function AdminPage() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isAddingProduct, setIsAddingProduct] = useState(false)
+  const [isSavingProductEdit, setIsSavingProductEdit] = useState(false)
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -162,6 +163,8 @@ export default function AdminPage() {
   const [isSubmittingUser, setIsSubmittingUser] = useState(false)
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null)
   const [newUser, setNewUser] = useState({ name: "", email: "", password: "" })
+  const [contactMessage, setContactMessage] = useState("")
+  const [isSendingContact, setIsSendingContact] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -258,14 +261,40 @@ export default function AdminPage() {
     toast.success("Producto eliminado")
   }
 
-  const handleSaveEdit = () => {
+  // NUEVO (EDITA PRODUCTO)
+  const handleSaveEdit = async () => {
     if (!editingProduct) return
-    const updated = products.map((p) =>
-      p.id === editingProduct.id ? editingProduct : p
-    )
-    saveProducts(updated)
-    setEditingProduct(null)
-    toast.success("Producto actualizado")
+
+    if (!editingProduct.name || !editingProduct.description || !editingProduct.price) {
+      toast.error("Completa todos los campos")
+      return
+    }
+
+    setIsSavingProductEdit(true)
+    try {
+      await api.patch(`/products.php?id=${editingProduct.id}`, {
+        name: editingProduct.name,
+        description: editingProduct.description,
+        price: editingProduct.price,
+        image_url: editingProduct.image,
+        visible: editingProduct.enabled,
+        available: editingProduct.enabled,
+      })
+
+      const updated = products.map((p) =>
+        p.id === editingProduct.id ? editingProduct : p
+      )
+      saveProducts(updated)
+      setEditingProduct(null)
+      toast.success("Producto actualizado")
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "Error al actualizar el producto"
+      toast.error(message)
+    } finally {
+      setIsSavingProductEdit(false)
+    }
   }
 
   const handleAddProduct = async () => {
@@ -347,6 +376,30 @@ export default function AdminPage() {
       toast.error(message)
     } finally {
       setIsSavingProfile(false)
+    }
+  }
+
+  const handleSendContactMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const message = contactMessage.trim()
+    if (!message) {
+      toast.error("Escribí un mensaje para enviar")
+      return
+    }
+
+    setIsSendingContact(true)
+    try {
+      await api.post("/contact.php", { message })
+      setContactMessage("")
+      toast.success("Mensaje enviado correctamente")
+    } catch (error: unknown) {
+      const messageError =
+        (error as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "No se pudo enviar el mensaje"
+      toast.error(messageError)
+    } finally {
+      setIsSendingContact(false)
     }
   }
 
@@ -939,89 +992,118 @@ export default function AdminPage() {
 
           {/* Settings Tab */}
           <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mi perfil</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {isLoadingProfile ? (
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                    <Spinner className="h-4 w-4" />
-                    Cargando datos...
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-sm text-muted-foreground">
-                      Editá solo los campos que querés cambiar.
-                    </p>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-name">Nombre</Label>
-                        <Input
-                          id="profile-name"
-                          value={userProfile.name}
-                          onChange={(e) =>
-                            setUserProfile({ ...userProfile, name: e.target.value })
-                          }
-                          placeholder="Tu nombre"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-email">Email</Label>
-                        <Input
-                          id="profile-email"
-                          type="email"
-                          value={userProfile.email}
-                          onChange={(e) =>
-                            setUserProfile({ ...userProfile, email: e.target.value })
-                          }
-                          placeholder="tu@email.com"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-password">Nueva contraseña</Label>
-                        <Input
-                          id="profile-password"
-                          type="password"
-                          value={userProfile.password}
-                          onChange={(e) =>
-                            setUserProfile({ ...userProfile, password: e.target.value })
-                          }
-                          placeholder="Dejar vacío para no cambiar"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-phone">WhatsApp</Label>
-                        <Input
-                          id="profile-phone"
-                          value={userProfile.phone_whatsapp}
-                          onChange={(e) =>
-                            setUserProfile({ ...userProfile, phone_whatsapp: e.target.value })
-                          }
-                          placeholder="+598 99 123 456"
-                        />
-                      </div>
-                      <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="profile-apikey">CallMeBot API Key</Label>
-                        <Input
-                          id="profile-apikey"
-                          type="password"
-                          value={userProfile.callmebot_apikey}
-                          onChange={(e) =>
-                            setUserProfile({ ...userProfile, callmebot_apikey: e.target.value })
-                          }
-                          placeholder="Tu API Key de CallMeBot"
-                        />
-                      </div>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mi perfil</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {isLoadingProfile ? (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Spinner className="h-4 w-4" />
+                      Cargando datos...
                     </div>
-                    <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
-                      {isSavingProfile ? <Spinner className="h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                      Guardar cambios
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        Editá solo los campos que querés cambiar.
+                      </p>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="profile-name">Nombre</Label>
+                          <Input
+                            id="profile-name"
+                            value={userProfile.name}
+                            onChange={(e) =>
+                              setUserProfile({ ...userProfile, name: e.target.value })
+                            }
+                            placeholder="Tu nombre"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="profile-email">Email</Label>
+                          <Input
+                            id="profile-email"
+                            type="email"
+                            value={userProfile.email}
+                            onChange={(e) =>
+                              setUserProfile({ ...userProfile, email: e.target.value })
+                            }
+                            placeholder="tu@email.com"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="profile-password">Nueva contraseña</Label>
+                          <Input
+                            id="profile-password"
+                            type="password"
+                            value={userProfile.password}
+                            onChange={(e) =>
+                              setUserProfile({ ...userProfile, password: e.target.value })
+                            }
+                            placeholder="Dejar vacío para no cambiar"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="profile-phone">WhatsApp</Label>
+                          <Input
+                            id="profile-phone"
+                            value={userProfile.phone_whatsapp}
+                            onChange={(e) =>
+                              setUserProfile({ ...userProfile, phone_whatsapp: e.target.value })
+                            }
+                            placeholder="+598 99 123 456"
+                          />
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                          <Label htmlFor="profile-apikey">CallMeBot API Key</Label>
+                          <Input
+                            id="profile-apikey"
+                            type="password"
+                            value={userProfile.callmebot_apikey}
+                            onChange={(e) =>
+                              setUserProfile({ ...userProfile, callmebot_apikey: e.target.value })
+                            }
+                            placeholder="Tu API Key de CallMeBot"
+                          />
+                        </div>
+                      </div>
+                      <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
+                        {isSavingProfile ? <Spinner className="h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                        Guardar cambios
+                      </Button>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Enviar mensaje por WhatsApp</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Escribí el mensaje que querés enviar por WhatsApp.
+                  </p>
+                  <form onSubmit={handleSendContactMessage} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-message">Mensaje por WhatsApp</Label>
+                      <Textarea
+                        id="contact-message"
+                        value={contactMessage}
+                        onChange={(e) => setContactMessage(e.target.value)}
+                        placeholder="Escribí acá el mensaje"
+                        rows={5}
+                      />
+                    </div>
+                    <Button type="submit" disabled={isSendingContact}>
+                      {isSendingContact ? <Spinner className="h-4 w-4 mr-2" /> : <Phone className="h-4 w-4 mr-2" />}
+                      Enviar por WhatsApp
                     </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
@@ -1087,12 +1169,15 @@ export default function AdminPage() {
                 />
               </div>
             </div>
-          )}
+          )} 
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setEditingProduct(null)}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveEdit}>Guardar cambios</Button>
+            <Button onClick={handleSaveEdit} disabled={isSavingProductEdit}>
+              {isSavingProductEdit ? <Spinner className="h-4 w-4 mr-2" /> : null} { /* NEW  BUTTON  SAVE PRODUCT EDIT*/}
+              Guardar cambios
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
